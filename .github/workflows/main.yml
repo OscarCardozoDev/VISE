@@ -79,6 +79,3 @@ jobs:
                --error-format long \
                --verbose \
                --test session.hurl
-
-            with:
-              push: true

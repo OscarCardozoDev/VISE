@@ -1,14 +1,12 @@
-import { Controller, Post, Body } from "@nestjs/common";
-import { ViseService } from "./vise.service";
-import type { CompraRequest, Persona } from "./vise.interface";
-import { Get } from "@nestjs/common";
-import { Param } from "@nestjs/common";
+import { Controller, Post, Body, Get } from '@nestjs/common';
+import { ViseService } from './vise.service';
+import type { CompraRequest, Persona } from './vise.interface';
 
 @Controller()
 export class ViseController {
   constructor(private viseService: ViseService) {}
 
-  @Post("client")
+  @Post('client')
   create(@Body() persona: Persona) {
     try {
       const result = this.viseService.create(persona);
@@ -16,21 +14,24 @@ export class ViseController {
         clientId: result.id,
         name: result.name,
         cardType: result.cardType,
-        status: "Registered",
+        status: 'Registered',
         message: `Cliente apto para tarjeta ${result.cardType}`,
       };
-    } catch (error) {
+    } catch (error: unknown) {
+      const err = error as { status?: string; message?: string };
       return {
-        status: error.status || "Rejected",
-        message: error.message || "An unknown error occurred",
+        status: err.status || 'Rejected',
+        message: err.message || 'An unknown error occurred',
       };
     }
   }
+
   @Get()
   findAll() {
     return this.viseService.findAll();
   }
-  @Post("purchase")
+
+  @Post('purchase')
   applyDiscount(@Body() compra: CompraRequest) {
     return this.viseService.applyDiscount(compra);
   }

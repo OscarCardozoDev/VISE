@@ -1,5 +1,5 @@
-import { ViseService } from "./vise.service";
-import type { CompraRequest, Persona } from "./vise.interface";
+import { ViseService } from './vise.service';
+import type { CompraRequest, Persona } from './vise.interface';
 export declare class ViseController {
     private viseService;
     constructor(viseService: ViseService);
@@ -10,26 +10,26 @@ export declare class ViseController {
         status: string;
         message: string;
     } | {
-        status: any;
-        message: any;
+        status: string;
+        message: string;
         clientId?: undefined;
         name?: undefined;
         cardType?: undefined;
     };
     findAll(): Persona[];
     applyDiscount(compra: CompraRequest): {
-        status: string;
-        purchase: {
-            clientId: number | undefined;
-            originalAmount: number;
-            discountApplied: number;
-            finalAmount: number;
-            benefit: string;
-        };
-        error?: undefined;
+        error: string;
+        clientId?: undefined;
+        originalAmount?: undefined;
+        discount?: undefined;
+        finalAmount?: undefined;
+        currency?: undefined;
     } | {
-        status: string;
-        error: any;
-        purchase?: undefined;
+        clientId: number;
+        originalAmount: number;
+        discount: number;
+        finalAmount: number;
+        currency: string;
+        error?: undefined;
     };
 }

@@ -5,93 +5,49 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ViseService = void 0;
 const common_1 = require("@nestjs/common");
-const restricciones_1 = __importDefault(require("./utils/restricciones"));
-const beneficios_1 = __importDefault(require("./utils/beneficios"));
+const tarjeta_1 = require("./utils/tarjeta");
+const restricciones_1 = require("./utils/restricciones");
+const beneficios_1 = require("./utils/beneficios");
 let ViseService = class ViseService {
     constructor() {
-        this.personas = [];
-        this.descuentos = new beneficios_1.default();
+        this.clients = [];
+        this.currentId = 1;
     }
     create(persona) {
-        if (restricciones_1.default.getRestricion(persona)) {
-            persona.id = this.personas.length + 1;
-            this.personas.push(persona);
-            return persona;
+        const isAllowed = restricciones_1.Restricciones.getRestricion(persona);
+        if (!isAllowed) {
+            throw {
+                status: 'Rejected',
+                message: 'Cliente no cumple con los requisitos',
+            };
         }
-        else {
-            const error = new Error(`El cliente no cumple con los requisitos necesarios para la tarjeta ${persona.cardType}`);
-            Object.defineProperty(error, "status", { value: "Rejected" });
-            Object.defineProperty(error, "error", {
-                value: "VISE_RESTRICTION_FAILED",
-            });
-            throw error;
-        }
+        const cardType = tarjeta_1.Tarjeta.getCard(persona.monthlyIncome);
+        const newClient = Object.assign(Object.assign({}, persona), { id: this.currentId++, cardType, status: 'Registered' });
+        this.clients.push(newClient);
+        return newClient;
     }
     findAll() {
-        return this.personas;
-    }
-    findOne(id) {
-        const persona = this.personas.find((p) => p.id === id);
-        if (!persona) {
-            const error = new Error(`Cliente con id ${id} no encontrado`);
-            Object.defineProperty(error, "status", { value: "NotFound" });
-            throw error;
-        }
-        return persona;
+        return this.clients;
     }
     applyDiscount(compra) {
-        try {
-            const cliente = this.findOne(compra.clientId);
-            const notAllowCountries = ["China", "Vietnam", "India", "Irán"];
-            if ((cliente.cardType === "Black" || cliente.cardType === "White") &&
-                notAllowCountries.includes(compra.purchaseCountry)) {
-                return {
-                    status: "Rejected",
-                    error: `El cliente con tarjeta ${cliente.cardType} no puede realizar compras desde ${compra.purchaseCountry}`,
-                };
-            }
-            const date = new Date(compra.purchaseDate);
-            const days = [
-                "domingo",
-                "lunes",
-                "martes",
-                "miercoles",
-                "jueves",
-                "viernes",
-                "sabado",
-            ];
-            const day = days[date.getUTCDay()];
-            const descuentoPercent = this.descuentos.getDescuento(cliente.cardType, compra.amount, cliente.country, compra.purchaseCountry, day);
-            const discountApplied = compra.amount * descuentoPercent;
-            const finalAmount = compra.amount - discountApplied;
-            let benefit = "";
-            if (descuentoPercent > 0) {
-                const dayCapitalized = day.charAt(0).toUpperCase() + day.slice(1);
-                benefit = `${dayCapitalized} - Descuento ${Math.round(descuentoPercent * 100)}%`;
-            }
+        const client = this.clients.find((c) => c.id === compra.clientId);
+        if (!client) {
             return {
-                status: "Approved",
-                purchase: {
-                    clientId: cliente.id,
-                    originalAmount: compra.amount,
-                    discountApplied: Math.round(discountApplied),
-                    finalAmount: Math.round(finalAmount),
-                    benefit: benefit || "Sin beneficio aplicado",
-                },
+                error: 'Cliente no encontrado',
             };
         }
-        catch (error) {
-            return {
-                status: "Rejected",
-                error: error.message,
-            };
-        }
+        const discount = beneficios_1.Beneficios.getDiscount(client.cardType, compra.amount, compra.purchaseDate, compra.purchaseCountry);
+        const finalAmount = compra.amount - discount;
+        return {
+            clientId: compra.clientId,
+            originalAmount: compra.amount,
+            discount,
+            finalAmount,
+            currency: compra.currency,
+        };
     }
 };
 exports.ViseService = ViseService;

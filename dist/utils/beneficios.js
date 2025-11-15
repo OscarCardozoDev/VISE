@@ -1,74 +1,61 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-class Descuentos {
-    getDescuento(card, payment, countryRecidence, countryPayment, day) {
-        if (card === "Classic") {
+exports.Beneficios = void 0;
+class Beneficios {
+    static getDiscount(cardType, payment, day, countryRecidence) {
+        const allowDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+        const weekDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+        const notAllowCountries = ['Cuba', 'Korea'];
+        if (cardType === 'Classic') {
+            if (day && allowDays.includes(day) && payment >= 100) {
+                return payment * 0.05;
+            }
             return 0;
         }
-        if (card === "Gold") {
-            const allowDays = ["lunes", "martes", "miercoles"];
-            if (allowDays.includes(day) && payment >= 100) {
-                return 0.15;
-            }
-            else {
-                return 0;
-            }
-        }
-        if (card === "Platinum") {
-            const allowDays = ["lunes", "martes", "miercoles"];
-            const notAllowCountries = ["China", "Vietnam", "India", "Irán"];
-            let discount = 0;
-            if (countryRecidence !== countryPayment &&
+        if (cardType === 'Gold') {
+            if (day &&
+                countryRecidence &&
+                allowDays.includes(day) &&
+                payment >= 100 &&
                 !notAllowCountries.includes(countryRecidence)) {
-                return 0.05;
+                return payment * 0.1;
             }
-            if (allowDays.includes(day) && payment >= 100) {
-                discount += 0.2;
+            if (day && allowDays.includes(day) && payment >= 100) {
+                return payment * 0.05;
             }
-            if (day === "sabado" && payment >= 200) {
-                discount += 0.3;
-            }
-            return discount;
+            return 0;
         }
-        if (card === "Black") {
-            const allowDays = ["lunes", "martes", "miercoles"];
-            const notAllowCountries = ["China", "Vietnam", "India", "Irán"];
-            let discount = 0;
-            if (countryRecidence !== countryPayment &&
+        if (cardType === 'Platinum') {
+            if (day &&
+                countryRecidence &&
+                allowDays.includes(day) &&
+                payment >= 100 &&
                 !notAllowCountries.includes(countryRecidence)) {
-                return 0.05;
+                return payment * 0.15;
             }
-            if (allowDays.includes(day) && payment >= 100) {
-                discount += 0.25;
+            if (day && allowDays.includes(day) && payment >= 100) {
+                return payment * 0.1;
             }
-            if (day === "sabado" && payment >= 200) {
-                discount += 0.35;
-            }
-            return discount;
+            return 0;
         }
-        if (card === "White") {
-            const notAllowCountries = ["China", "Vietnam", "India", "Irán"];
-            const weekDays = [
-                "lunes",
-                "martes",
-                "miercoles",
-                "jueves",
-                "viernes",
-            ];
-            let discount = 0;
-            if (countryRecidence !== countryPayment &&
+        if (cardType === 'Black') {
+            if (day &&
+                countryRecidence &&
+                allowDays.includes(day) &&
+                payment >= 100 &&
                 !notAllowCountries.includes(countryRecidence)) {
-                return 0.05;
+                return payment * 0.2;
             }
-            if (weekDays.includes(day) && payment >= 100) {
-                discount += 0.25;
-            }
-            if ((day === "sabado" || day === "domingo") && payment >= 200) {
-                discount += 0.35;
-            }
-            return discount;
+            return 0;
         }
+        if (cardType === 'White') {
+            if (day && weekDays.includes(day) && payment >= 100) {
+                return payment * 0.25;
+            }
+            return 0;
+        }
+        return 0;
     }
 }
-exports.default = Descuentos;
+exports.Beneficios = Beneficios;
 //# sourceMappingURL=beneficios.js.map

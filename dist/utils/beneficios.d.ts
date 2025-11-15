@@ -1,4 +1,3 @@
-declare class Descuentos {
-    getDescuento(card: string, payment: number, countryRecidence?: string, countryPayment?: string, day?: string): number | undefined;
+export declare class Beneficios {
+    static getDiscount(cardType: string, payment: number, day?: string, countryRecidence?: string): number;
 }
-export default Descuentos;

@@ -15,7 +15,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.ViseController = void 0;
 const common_1 = require("@nestjs/common");
 const vise_service_1 = require("./vise.service");
-const common_2 = require("@nestjs/common");
 let ViseController = class ViseController {
     constructor(viseService) {
         this.viseService = viseService;
@@ -27,14 +26,15 @@ let ViseController = class ViseController {
                 clientId: result.id,
                 name: result.name,
                 cardType: result.cardType,
-                status: "Registered",
+                status: 'Registered',
                 message: `Cliente apto para tarjeta ${result.cardType}`,
             };
         }
         catch (error) {
+            const err = error;
             return {
-                status: error.status || "Rejected",
-                message: error.message || "An unknown error occurred",
+                status: err.status || 'Rejected',
+                message: err.message || 'An unknown error occurred',
             };
         }
     }
@@ -47,20 +47,20 @@ let ViseController = class ViseController {
 };
 exports.ViseController = ViseController;
 __decorate([
-    (0, common_1.Post)("client"),
+    (0, common_1.Post)('client'),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", void 0)
 ], ViseController.prototype, "create", null);
 __decorate([
-    (0, common_2.Get)(),
+    (0, common_1.Get)(),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", void 0)
 ], ViseController.prototype, "findAll", null);
 __decorate([
-    (0, common_1.Post)("purchase"),
+    (0, common_1.Post)('purchase'),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),

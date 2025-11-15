@@ -1,5 +1,4 @@
-import { Persona } from "../vise.interface";
-declare class Restriciones {
+import type { Persona } from '../vise.interface';
+export declare class Restricciones {
     static getRestricion(person: Persona): boolean;
 }
-export default Restriciones;

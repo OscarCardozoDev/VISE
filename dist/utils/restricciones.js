@@ -1,38 +1,17 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-class Restriciones {
+exports.Restricciones = void 0;
+class Restricciones {
     static getRestricion(person) {
-        if (person.cardType === "Classic") {
-            return true;
+        const notAllowCountries = ['Cuba', 'Korea'];
+        if (notAllowCountries.includes(person.country)) {
+            return false;
         }
-        if (person.cardType === "Gold") {
-            if (person.monthlyIncome >= 500) {
-                return true;
-            }
-            else {
-                return false;
-            }
+        if (person.monthlyIncome < 100) {
+            return false;
         }
-        if (person.cardType === "Platinum") {
-            if (person.monthlyIncome >= 1000 && person.viseClub) {
-                return true;
-            }
-            else {
-                return false;
-            }
-        }
-        if (person.cardType === "Black" || person.cardType === "White") {
-            const notAllowCountries = ["China", "Vietnam", "India", "Irán"];
-            if (person.monthlyIncome >= 2000 && person.viseClub) {
-                if (!notAllowCountries.includes(person.country)) {
-                    return true;
-                }
-                else {
-                    return false;
-                }
-            }
-        }
+        return true;
     }
 }
-exports.default = Restriciones;
+exports.Restricciones = Restricciones;
 //# sourceMappingURL=restricciones.js.map

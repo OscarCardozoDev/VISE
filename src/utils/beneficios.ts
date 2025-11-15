@@ -1,102 +1,76 @@
-class Descuentos {
-  getDescuento(
-    card: string,
+import type { Persona } from '../vise.interface';
+
+export class Beneficios {
+  static getDiscount(
+    cardType: string,
     payment: number,
-    countryRecidence?: string,
-    countryPayment?: string,
-    day?: string
-  ) {
-    if (card === "Classic") {
+    day?: string,
+    countryRecidence?: string
+  ): number {
+    const allowDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+    const weekDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+    const notAllowCountries = ['Cuba', 'Korea'];
+
+    // Validar que day y countryRecidence no sean undefined antes de usarlos
+    if (cardType === 'Classic') {
+      if (day && allowDays.includes(day) && payment >= 100) {
+        return payment * 0.05;
+      }
       return 0;
     }
 
-    if (card === "Gold") {
-      const allowDays: string[] = ["lunes", "martes", "miercoles"];
-      if (allowDays.includes(day) && payment >= 100) {
-        return 0.15;
-      } else {
-        return 0;
-      }
-    }
-
-    if (card === "Platinum") {
-      const allowDays: string[] = ["lunes", "martes", "miercoles"];
-      const notAllowCountries: string[] = ["China", "Vietnam", "India", "Irán"];
-      let discount = 0;
-
-      // Solo compras en el exterior (no acumulativo con otros descuentos)
+    if (cardType === 'Gold') {
       if (
-        countryRecidence !== countryPayment &&
+        day &&
+        countryRecidence &&
+        allowDays.includes(day) &&
+        payment >= 100 &&
         !notAllowCountries.includes(countryRecidence)
       ) {
-        return 0.05;
+        return payment * 0.1;
       }
-
-      if (allowDays.includes(day) && payment >= 100) {
-        discount += 0.2;
+      if (day && allowDays.includes(day) && payment >= 100) {
+        return payment * 0.05;
       }
-      if (day === "sabado" && payment >= 200) {
-        discount += 0.3;
-      }
-
-      return discount;
+      return 0;
     }
 
-    if (card === "Black") {
-      const allowDays: string[] = ["lunes", "martes", "miercoles"];
-      const notAllowCountries: string[] = ["China", "Vietnam", "India", "Irán"];
-      let discount = 0;
-
-      // Solo compras en el exterior (no acumulativo con otros descuentos)
+    if (cardType === 'Platinum') {
       if (
-        countryRecidence !== countryPayment &&
+        day &&
+        countryRecidence &&
+        allowDays.includes(day) &&
+        payment >= 100 &&
         !notAllowCountries.includes(countryRecidence)
       ) {
-        return 0.05;
+        return payment * 0.15;
       }
-
-      if (allowDays.includes(day) && payment >= 100) {
-        discount += 0.25;
+      if (day && allowDays.includes(day) && payment >= 100) {
+        return payment * 0.1;
       }
-      if (day === "sabado" && payment >= 200) {
-        discount += 0.35;
-      }
-
-      return discount;
+      return 0;
     }
 
-    if (card === "White") {
-      const notAllowCountries: string[] = ["China", "Vietnam", "India", "Irán"];
-      const weekDays: string[] = [
-        "lunes",
-        "martes",
-        "miercoles",
-        "jueves",
-        "viernes",
-      ];
-      let discount = 0;
-
-      // Solo compras en el exterior (no acumulativo con otros descuentos)
+    if (cardType === 'Black') {
       if (
-        countryRecidence !== countryPayment &&
+        day &&
+        countryRecidence &&
+        allowDays.includes(day) &&
+        payment >= 100 &&
         !notAllowCountries.includes(countryRecidence)
       ) {
-        return 0.05;
+        return payment * 0.2;
       }
-
-      // Del lunes a viernes, compras mayores a 100 USD tienen 25% descuento
-      if (weekDays.includes(day) && payment >= 100) {
-        discount += 0.25;
-      }
-
-      // Los sábados y domingos, compras mayores a 200 USD tienen 35% descuento
-      if ((day === "sabado" || day === "domingo") && payment >= 200) {
-        discount += 0.35;
-      }
-
-      return discount;
+      return 0;
     }
+
+    if (cardType === 'White') {
+      if (day && weekDays.includes(day) && payment >= 100) {
+        return payment * 0.25;
+      }
+      return 0;
+    }
+
+    return 0;
   }
 }
-
-export default Descuentos;

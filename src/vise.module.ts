@@ -1,6 +1,6 @@
-import { Module } from "@nestjs/common";
-import { ViseController } from "./vise.controller";
-import { ViseService } from "./vise.service";
+import { Module } from '@nestjs/common';
+import { ViseController } from './vise.controller';
+import { ViseService } from './vise.service';
 
 @Module({
   imports: [],

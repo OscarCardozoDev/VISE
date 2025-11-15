@@ -1,23 +1,22 @@
-import { CompraRequest, Persona } from "./vise.interface";
+import type { Persona, CompraRequest } from './vise.interface';
 export declare class ViseService {
-    private readonly personas;
-    private readonly descuentos;
+    private clients;
+    private currentId;
     create(persona: Persona): Persona;
     findAll(): Persona[];
-    findOne(id: number): Persona;
     applyDiscount(compra: CompraRequest): {
-        status: string;
-        purchase: {
-            clientId: number | undefined;
-            originalAmount: number;
-            discountApplied: number;
-            finalAmount: number;
-            benefit: string;
-        };
-        error?: undefined;
+        error: string;
+        clientId?: undefined;
+        originalAmount?: undefined;
+        discount?: undefined;
+        finalAmount?: undefined;
+        currency?: undefined;
     } | {
-        status: string;
-        error: any;
-        purchase?: undefined;
+        clientId: number;
+        originalAmount: number;
+        discount: number;
+        finalAmount: number;
+        currency: string;
+        error?: undefined;
     };
 }

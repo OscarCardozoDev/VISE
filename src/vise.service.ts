@@ -1,104 +1,64 @@
-import { Injectable } from "@nestjs/common";
-import Restriciones from "./utils/restricciones";
-import { CompraRequest, Persona } from "./vise.interface";
-import beneficios from "./utils/beneficios";
+import { Injectable } from '@nestjs/common';
+import type { Persona, CompraRequest } from './vise.interface';
+import { Tarjeta } from './utils/tarjeta';
+import { Restricciones } from './utils/restricciones';
+import { Beneficios } from './utils/beneficios';
 
 @Injectable()
 export class ViseService {
-  private readonly personas: Persona[] = [];
-  private readonly descuentos = new beneficios();
-  create(persona: Persona) {
-    if (Restriciones.getRestricion(persona)) {
-      persona.id = this.personas.length + 1;
+  private clients: Persona[] = [];
+  private currentId = 1;
 
-      this.personas.push(persona);
-      return persona;
-    } else {
-      const error = new Error(
-        `El cliente no cumple con los requisitos necesarios para la tarjeta ${persona.cardType}`
-      );
-
-      Object.defineProperty(error, "status", { value: "Rejected" });
-      Object.defineProperty(error, "error", {
-        value: "VISE_RESTRICTION_FAILED",
-      });
-
-      throw error;
+  create(persona: Persona): Persona {
+    const isAllowed = Restricciones.getRestricion(persona);
+    if (!isAllowed) {
+      throw {
+        status: 'Rejected',
+        message: 'Cliente no cumple con los requisitos',
+      };
     }
+
+    const cardType = Tarjeta.getCard(persona.monthlyIncome);
+
+    const newClient: Persona = {
+      ...persona,
+      id: this.currentId++,
+      cardType,
+      status: 'Registered',
+    };
+
+    this.clients.push(newClient);
+    return newClient;
   }
-  findAll() {
-    return this.personas;
+
+  findAll(): Persona[] {
+    return this.clients;
   }
-  findOne(id: number) {
-    const persona = this.personas.find((p) => p.id === id);
-    if (!persona) {
-      const error = new Error(`Cliente con id ${id} no encontrado`);
-      Object.defineProperty(error, "status", { value: "NotFound" });
-      throw error;
-    }
-    return persona;
-  }
+
   applyDiscount(compra: CompraRequest) {
-    try {
-      const cliente = this.findOne(compra.clientId);
-
-      // Verificar restricciones para compras desde países no permitidos
-      const notAllowCountries: string[] = ["China", "Vietnam", "India", "Irán"];
-      if (
-        (cliente.cardType === "Black" || cliente.cardType === "White") &&
-        notAllowCountries.includes(compra.purchaseCountry)
-      ) {
-        return {
-          status: "Rejected",
-          error: `El cliente con tarjeta ${cliente.cardType} no puede realizar compras desde ${compra.purchaseCountry}`,
-        };
-      }
-
-      // obtener el día de la semana a partir de purchaseDate
-      const date = new Date(compra.purchaseDate);
-      const days = [
-        "domingo",
-        "lunes",
-        "martes",
-        "miercoles",
-        "jueves",
-        "viernes",
-        "sabado",
-      ];
-      const day = days[date.getUTCDay()];
-
-      const descuentoPercent = this.descuentos.getDescuento(
-        cliente.cardType,
-        compra.amount,
-        cliente.country,
-        compra.purchaseCountry,
-        day,
-      );
-
-      const discountApplied = compra.amount * descuentoPercent;
-      const finalAmount = compra.amount - discountApplied;
-
-      let benefit = "";
-      if (descuentoPercent > 0) {
-        const dayCapitalized = day.charAt(0).toUpperCase() + day.slice(1);
-        benefit = `${dayCapitalized} - Descuento ${Math.round(descuentoPercent * 100)}%`;
-      }
-
+    const client = this.clients.find((c) => c.id === compra.clientId);
+    
+    if (!client) {
       return {
-        status: "Approved",
-        purchase: {
-          clientId: cliente.id,
-          originalAmount: compra.amount,
-          discountApplied: Math.round(discountApplied),
-          finalAmount: Math.round(finalAmount),
-          benefit: benefit || "Sin beneficio aplicado",
-        },
-      };
-    } catch (error) {
-      return {
-        status: "Rejected",
-        error: error.message,
+        error: 'Cliente no encontrado',
       };
     }
+
+    const discount = Beneficios.getDiscount(
+      client.cardType,
+      compra.amount,
+      compra.purchaseDate,
+      compra.purchaseCountry
+    );
+
+    const finalAmount = compra.amount - discount;
+
+    return {
+      clientId: compra.clientId,
+      originalAmount: compra.amount,
+      discount,
+      finalAmount,
+      currency: compra.currency,
+    };
   }
 }

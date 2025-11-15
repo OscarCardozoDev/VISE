@@ -1,17 +1,13 @@
-import './instrumentation';
-import { NestFactory } from "@nestjs/core";
-import { ViseModule } from "./vise.module";
-//Section about Axom
-// Importing OpenTelemetry instrumentation for tracing
+import './instrumentation';   // <--- muy importante
 
-import { trace, context } from '@opentelemetry/api';
-
-// Importing Express.js: A minimal and flexible Node.js web app framework
-import express from 'express';
-//Closed section
+import { NestFactory } from '@nestjs/core';
+import { ViseModule } from './vise.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(ViseModule);
   await app.listen(443);
+  console.log('API ejecutándose en el puerto 443');
 }
+
 bootstrap();
+

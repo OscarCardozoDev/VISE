@@ -16,6 +16,7 @@ function bootstrap() {
     return __awaiter(this, void 0, void 0, function* () {
         const app = yield core_1.NestFactory.create(vise_module_1.ViseModule);
         yield app.listen(443);
+        console.log('API ejecutándose en el puerto 443');
     });
 }
 bootstrap();

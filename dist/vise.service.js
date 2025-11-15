@@ -14,8 +14,10 @@ const common_1 = require("@nestjs/common");
 const restricciones_1 = __importDefault(require("./utils/restricciones"));
 const beneficios_1 = __importDefault(require("./utils/beneficios"));
 let ViseService = class ViseService {
-    personas = [];
-    descuentos = new beneficios_1.default();
+    constructor() {
+        this.personas = [];
+        this.descuentos = new beneficios_1.default();
+    }
     create(persona) {
         if (restricciones_1.default.getRestricion(persona)) {
             persona.id = this.personas.length + 1;

@@ -8,7 +8,7 @@ export declare class ViseService {
     applyDiscount(compra: CompraRequest): {
         status: string;
         purchase: {
-            clientId: number;
+            clientId: number | undefined;
             originalAmount: number;
             discountApplied: number;
             finalAmount: number;

@@ -4,7 +4,7 @@ export declare class ViseController {
     private viseService;
     constructor(viseService: ViseService);
     create(persona: Persona): {
-        clientId: number;
+        clientId: number | undefined;
         name: string;
         cardType: "Classic" | "Gold" | "Platinum" | "Black" | "White";
         status: string;
@@ -20,7 +20,7 @@ export declare class ViseController {
     applyDiscount(compra: CompraRequest): {
         status: string;
         purchase: {
-            clientId: number;
+            clientId: number | undefined;
             originalAmount: number;
             discountApplied: number;
             finalAmount: number;

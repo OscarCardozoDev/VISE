@@ -17,7 +17,6 @@ const common_1 = require("@nestjs/common");
 const vise_service_1 = require("./vise.service");
 const common_2 = require("@nestjs/common");
 let ViseController = class ViseController {
-    viseService;
     constructor(viseService) {
         this.viseService = viseService;
     }

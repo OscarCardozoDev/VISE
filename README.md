@@ -70,3 +70,12 @@ docker build -t vise .
 
 2. Ejecutar contenedor
 docker run -p 3000:3000 vise
+
+/--------------------------/
+>Inicialización de OpenTelemetry
+La instrumentación se inicializa automática al arrancar la aplicación:
+
+1. Mensaje que indica que esta funcionando correctamente:
+OpenTelemetry instrumentation started with Axiom
+✅ Application is running on port: 443
+🔍 OpenTelemetry tracing active - sending data to Axiom

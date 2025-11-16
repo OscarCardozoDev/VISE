@@ -1,30 +1,47 @@
+import './instrumentation';
+
 import 'dotenv/config';
 import { NestFactory } from "@nestjs/core";
 import { ViseModule } from "./vise.module";
-//import './instrumentation';
-import * as appInsights from "applicationinsights";
+import { trace, context } from '@opentelemetry/api';
 
-console.log("AI Connection String:", process.env.APPLICATIONINSIGHTS_CONNECTION_STRING);
-
-// Initialize using the connection string injected by Azure
-appInsights
- .setup(process.env.APPLICATIONINSIGHTS_CONNECTION_STRING)
- .setAutoDependencyCorrelation(true)
- .setAutoCollectRequests(true)
- .setAutoCollectPerformance(true, {})
- .setAutoCollectExceptions(true)
- .setAutoCollectDependencies(true)
- .setAutoCollectConsole(true, true)
- .setUseDiskRetryCaching(true)
- .start();
-const client = appInsights.defaultClient;
-client.context.tags[client.context.keys.cloudRole] = "my-node-api"; // Optional: tag role
-// Example custom event
-client.trackEvent({ name: "server_started", properties: { environment:
-"production" } });
+// Get the tracer from the global tracer provider
+const tracer = trace.getTracer('vise-api');
 
 async function bootstrap() {
-  const app = await NestFactory.create(ViseModule);
-  await app.listen(443);
+  try {
+    // Crear una span para el inicio de la aplicación
+    const bootstrapSpan = tracer.startSpan('app_bootstrap');
+    
+    await context.with(trace.setSpan(context.active(), bootstrapSpan), async () => {
+      const app = await NestFactory.create(ViseModule);
+      
+      // Opcional: Habilitar CORS si lo necesitas
+      // app.enableCors();
+      
+      const port = process.env.PORT || 443;
+      await app.listen(port);
+      
+      console.log(`✅ Application is running on port: ${port}`);
+      console.log(`🔍 OpenTelemetry tracing active - sending data to Axiom`);
+      
+      // Track custom event for app startup
+      bootstrapSpan.addEvent('server_started', {
+        port: port.toString(),
+        environment: process.env.NODE_ENV || 'production',
+      });
+      
+      bootstrapSpan.end();
+    });
+  } catch (error) {
+    // Crear una span para errores de bootstrap
+    const errorSpan = tracer.startSpan('app_bootstrap_error');
+    errorSpan.recordException(error as Error);
+    errorSpan.end();
+    
+    console.error('❌ Failed to bootstrap application:', error);
+    process.exit(1);
+  }
 }
+
 bootstrap();
